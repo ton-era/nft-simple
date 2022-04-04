@@ -1,0 +1,61 @@
+#!/usr/bin/env fift -s
+"TonUtil.fif" include
+"Asm.fif" include
+
+// parse CLI
+$1 parse-workchain-id =: wc    // contract workchain
+def? $2 { @' $2 } { "build/nft-collection" } cond =: file-base  // file path prefix
+
+// code
+"build/nft-collection-code.fif" include =: contract_code
+
+// data
+<b 
+   2 2 u, 
+   0 1 u,
+   0 8 i,  // owner_workchain
+   0x114fd5c7dfba61c710e834699c29ceedf404b8891efa1cf8f63a3d1d81263cdb 256 u,   // owner_account_id
+
+   file-base +".pk" load-generate-keypair =: wallet_pk B, 
+   0 32 u, 
+   0 32 u,
+   0 Gram, 
+   0 Gram, 
+   dictnew dict,  // orders
+b> =: contract_data
+
+// libraries
+null
+
+// create StateInit = (flags, code, data, libs)
+<b 
+   b{00110} s, 
+   contract_code ref, 
+   contract_data ref,
+   null dict,
+b> dup =: state_init
+dup ."StateInit: " <s csr. cr
+
+// create smart contract address = hash(StateInit)
+dup hashu wc swap 2dup 2constant smc_addr
+."Smart contract address: " 2dup .addr cr
+2dup file-base +".addr" save-address-verbose
+."Non-bounceable address (for init): " 2dup 7 .Addr cr
+."Bounceable address (for later access): " 6 .Addr cr
+
+// no initial message + signing (budy = null)
+null
+
+// final external query to blockchain
+<b 
+   b{1000100} s, 
+   smc_addr addr, 
+   b{000010} s, 
+   state_init <s s, 
+   b{0} s,
+b>
+
+cr
+2 boc+>B dup Bx. cr
+file-base +"-query.boc" tuck B>file
+."(Saved smart contract creating query to file " type .")" cr
