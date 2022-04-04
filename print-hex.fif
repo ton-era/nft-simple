@@ -1,0 +1,27 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+"Asm.fif" include
+
+$1 =: build-path
+
+."Build folder: " build-path type cr
+
+
+cr ."nft-collection:" cr
+build-path "/nft-collection-code.fif" $+ include
+2 boc+>B dup Bx. cr
+
+
+cr ."nft:" cr
+build-path "/nft-item-code.fif" $+ include
+2 boc+>B dup Bx. cr
+
+
+cr ."nft-marketplace:" cr
+build-path "/nft-marketplace-code.fif" $+ include
+2 boc+>B dup Bx. cr
+
+
+cr ."nft-sale:" cr
+build-path "/nft-sale-code.fif" $+ include
+2 boc+>B dup Bx. cr
