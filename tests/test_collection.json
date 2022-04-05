@@ -1,0 +1,8 @@
+{
+    "name": "Test Collection",
+    "description": "This is a test collection resided in IPFS.",
+    "image": "https://ipfs.io/ipfs/QmWdhucm89jqE2WAY17QHh2kctQHtmpmgA8BhfykeDUpi6",
+    "external_link": "https://github.com/ton-era",
+    "seller_fee_basis_points": 100,
+    "fee_recipient": "EQART9XH37phxxDoNGmcKc7t9AS4iR76HPj2Oj0dgSY824RZ"
+  }

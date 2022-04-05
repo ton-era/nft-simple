@@ -132,12 +132,36 @@ slice calculate_nft_item_address(int wc, cell state_init) {
     throw(0xffff);
 }
 
+
+
+;; TODO >>>>>>>>>>>>>>>>
+() recv_external(slice in_msg) impure {
+  if (slice_empty?(in_msg)) {
+    return ();
+  }
+  accept_message();
+}
+
+int get_me() method_id {
+  return 123;
+}
+
+_ get_all() method_id {
+  var (owner_address, next_item_index, content, _, royalty) = load_data();
+  slice cs = content.begin_parse();
+  return (owner_address, next_item_index, cs~load_ref(), cs~load_ref(), royalty);
+}
+
+;; TODO <<<<<<<<<<<<<<<<
+
+
+
 ;; Get methods
 
-(int, cell, slice) get_collection_data() method_id {
+(int, cell, slice, int) get_collection_data() method_id {
   var (owner_address, next_item_index, content, _, _) = load_data();
   slice cs = content.begin_parse();
-  return (next_item_index, cs~load_ref(), owner_address);
+  return (next_item_index, cs~load_ref(), owner_address, 42);
 }
 
 slice get_nft_address_by_index(int index) method_id {

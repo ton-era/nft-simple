@@ -2,48 +2,91 @@
 "TonUtil.fif" include
 "Asm.fif" include
 
-// parse CLI
-$1 parse-workchain-id =: wc    // contract workchain
-def? $2 { @' $2 } { "build/nft-collection" } cond =: file-base  // file path prefix
+// parameters
+def? $1 { @' $1 } { "build" } cond =: build-path  // build path
+def? $2 { @' $2 } { build-path +"/nft-collection" } cond =: file-base  // file path prefix
+
+0 =: contract_wc
+
+"EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH"  // owner address
+$>smca 0= abort"bad address"
+=: owner_wc
+=: owner_addr
+=: owner_flags
+
+.">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" cr
+owner_addr . cr cr cr
+
+"aHR0cHM6Ly9pcGZzLmlvL2lwZnMvUW1jbkt4OGNGY3VXUkp4czRyajdxTDUzd1VvaEhmaVRjWnVySGZ4dmZoZm5vWA==" // collection content URI
+=: collection_content_uri  // uri --> encode uri --> base64 (UTF-8-based) encode
+
+"aHR0cHM6Ly9pcGZzLmlvL2lwZnMv" // item content base uri
+=: item_content_base_uri  // uri --> encode uri --> base64 (UTF-8-based) encode
+
+100 =: royalty_base
+5 =: royalty_factor  // royalty, % = 100 * factor / base
+
+"EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH"  // royalty address
+$>smca 0= abort"bad address"
+=: royalty_wc
+=: royalty_addr
+=: royalty_flags
+
 
 // code
-"build/nft-collection-code.fif" include =: contract_code
+build-path +"/nft-collection-code.fif" include =: collection_code
+build-path +"/nft-item-code.fif" include =: item_code
+
 
 // data
-<b 
-   2 2 u, 
+<b
+   2 2 u,
    0 1 u,
-   0 8 i,  // owner_workchain
-   0x114fd5c7dfba61c710e834699c29ceedf404b8891efa1cf8f63a3d1d81263cdb 256 u,   // owner_account_id
+   owner_wc 8 i,       // owner wc
+   owner_addr 256 u,   // owner in-workchain address
+   0 64 u,             // next item index
+   <b  // content
+      <b  // collection content
+         collection_content_uri base64>B B,  // URI
+      b> ref,
+      <b  // common content
+         item_content_base_uri base64>B B, // base URI
+      b> ref,            
+   b> ref,
+   item_code ref,      // item code
+   <b  // royalty
+      royalty_factor 16 u,  // royalty factor
+      royalty_base 16 u,    // royalty base
+      2 2 u,
+      0 1 u,
+      royalty_wc 8  i,      // royalty wc
+      royalty_addr 256 u,   // royalty in-workchain address
+   b> ref,
+b> =: collection_data
 
-   file-base +".pk" load-generate-keypair =: wallet_pk B, 
-   0 32 u, 
-   0 32 u,
-   0 Gram, 
-   0 Gram, 
-   dictnew dict,  // orders
-b> =: contract_data
 
 // libraries
 null
 
+
 // create StateInit = (flags, code, data, libs)
 <b 
-   b{00110} s, 
-   contract_code ref, 
-   contract_data ref,
+   b{0011} s, 
+   collection_code ref, 
+   collection_data ref,
    null dict,
-b> dup =: state_init
-dup ."StateInit: " <s csr. cr
+b> =: state_init
+state_init ."StateInit: " cr <s csr. cr
 
 // create smart contract address = hash(StateInit)
-dup hashu wc swap 2dup 2constant smc_addr
+state_init hashu contract_wc swap 2dup 2constant smc_addr
 ."Smart contract address: " 2dup .addr cr
 2dup file-base +".addr" save-address-verbose
 ."Non-bounceable address (for init): " 2dup 7 .Addr cr
 ."Bounceable address (for later access): " 6 .Addr cr
 
-// no initial message + signing (budy = null)
+
+// no initial message to smc, no signing (body = null)
 null
 
 // final external query to blockchain
@@ -53,9 +96,12 @@ null
    b{000010} s, 
    state_init <s s, 
    b{0} s,
+   null dict,
 b>
 
 cr
 2 boc+>B dup Bx. cr
 file-base +"-query.boc" tuck B>file
 ."(Saved smart contract creating query to file " type .")" cr
+
+cr ."Address:" cr smc_addr 6 .Addr cr cr

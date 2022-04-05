@@ -1,3 +1,5 @@
+#!/bin/bash
+
 FUNC="/opt/ton/build/crypto/func"
 FIFT_EXE_PATH="/opt/ton/build/crypto/fift"
 STD_LIB="./stdlib.fc"

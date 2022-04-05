@@ -1,0 +1,26 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+"Asm.fif" include
+
+
+"EQART9XH37phxxDoNGmcKc7t9AS4iR76HPj2Oj0dgSY824RZ"
+$>smca 0= abort"bad address"
+=: owner_wc
+=: owner_addr
+=: owner_flags
+
+owner_wc owner_addr owner_flags smca>$ =: address
+
+address .dump cr
+
+owner_addr .dump cr
+
+42 emit cr
+
+char * .dump cr
+
+64 8 i>B .dump cr
+
+
+"aHR0cHMlM0ElMkYlMkZpcGZzLmlvJTJGaXBmcyUyRlFtY25LeDhjRmN1V1JKeHM0cmo3cUw1M3dVb2hIZmlUY1p1ckhmeHZmaGZub1g=" =: x
+x base64>B .dump cr
