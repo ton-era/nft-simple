@@ -24,3 +24,26 @@ char * .dump cr
 
 "aHR0cHMlM0ElMkYlMkZpcGZzLmlvJTJGaXBmcyUyRlFtY25LeDhjRmN1V1JKeHM0cmo3cUw1M3dVb2hIZmlUY1p1ckhmeHZmaGZub1g=" =: x
 x base64>B .dump cr
+
+
+// Gram utilities
+1000000000 constant Gram1
+{ Gram1 swap */r } : Gram1*/
+{ Gram1 * } : Gram1*
+{ (number) dup { 1- ' Gram1*/ ' Gram1* cond true } if
+} : $>GR?
+// ( S -- nanograms )
+{ $>GR? not abort"not a valid Gram amount"
+} : $>GR
+{ bl word $>GR 1 'nop } ::_ GR$
+// ( nanograms -- S )
+
+"2" $>GR =: amount
+
+1000000000 constant Gram1
+
+cr cr
+
+<b 
+    3 Gram1,
+b> .dump cr cr
