@@ -8,10 +8,17 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "address": "kQCPOvBSYUmYcphdzaW1SYpBp9rEUK8m36XChUifbv0BZ_LA",
+  "address": "kQBJFPYszTiUfz0U7yzx5ENUx1DeypLVtvIYKv1ngnsw7v_0",
   "method": "get_collection_data",
   "stack": []
 }'
+
+// collection owner address
+"kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM"
+$>smca 0= abort"bad address"
+=: owner_flags
+=: owner_addr
+=: owner_wc
 
 
 result msg:

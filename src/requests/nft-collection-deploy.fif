@@ -61,10 +61,9 @@ b> =: collection_data
 
 // create StateInit = (flags, code, data, libs)
 <b 
-   b{0011} s, 
+   b{00110} s, 
    collection_code ref, 
    collection_data ref,
-   null dict,
 b> =: collection_state_init
 collection_state_init ."StateInit: " cr <s csr. cr
 
@@ -98,13 +97,9 @@ collection_state_init hashu coll_wc swap 2dup 2constant collection_addr
       // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104
       0 104 u,
 
-      // collection state init (include as ref)
-      b{0} s,
-      collection_state_init <s s,
-
-      // no body
-      b{0} s,
-      null dict,
+      // collection state init (include as ref) - 11, no body - 0
+      b{110} s,
+      collection_state_init ref,
    b> ref,
 b> =: internal_body
 
@@ -113,7 +108,7 @@ b> =: internal_body
 internal_body hashu wallet_pk ed25519_sign_uint =: signature
 
 
-// --------------------- Final query to Blockchain ---------------------
+// --------------------- Final external query to Blockchain ---------------------
 
 <b
    // header: prefix, none from_address (external msg)

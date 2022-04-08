@@ -47,6 +47,7 @@ build-path +"/nft-item-code.fif" include =: item_code
    0 64 u,             // next item index
    <b  // content
       <b  // collection content
+         0x01 8 u, // offchain prefix 
          collection_content_uri base64>B B,  // URI
       b> ref,
       <b  // common content
