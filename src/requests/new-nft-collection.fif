@@ -8,11 +8,11 @@ def? $2 { @' $2 } { build-path +"/nft-collection" } cond =: file-base  // file p
 
 0 =: contract_wc
 
-"EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH"  // owner address
+"kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM"  // owner address
 $>smca 0= abort"bad address"
-=: owner_flags
-=: owner_addr
 =: owner_wc
+=: owner_addr
+=: owner_flags
 
 .">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" cr
 owner_addr . cr cr cr
@@ -26,11 +26,11 @@ owner_addr . cr cr cr
 100 =: royalty_base
 5 =: royalty_factor  // royalty, % = 100 * factor / base
 
-"EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH"  // royalty address
+"kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM"  // royalty address
 $>smca 0= abort"bad address"
-=: royalty_flags
-=: royalty_addr
 =: royalty_wc
+=: royalty_addr
+=: royalty_flags
 
 
 // code
@@ -40,24 +40,25 @@ build-path +"/nft-item-code.fif" include =: item_code
 
 // data
 <b
-   b{100} s,           // 10+0 - owner address prefix
+   2 2 u,
+   0 1 u,
    owner_wc 8 i,       // owner wc
    owner_addr 256 u,   // owner in-workchain address
    0 64 u,             // next item index
    <b  // content
       <b  // collection content
-         0x01 8 u, // offchain prefix 
-         collection_content_uri base64>B B, // collection URI
+         collection_content_uri base64>B B,  // URI
       b> ref,
       <b  // common content
-         item_content_base_uri base64>B B, // item base URI
+         item_content_base_uri base64>B B, // base URI
       b> ref,            
    b> ref,
-   item_code ref, // item code
+   item_code ref,      // item code
    <b  // royalty
       royalty_factor 16 u,  // royalty factor
       royalty_base 16 u,    // royalty base
-      b{100} s,             // 10+0 - royalty address prefix
+      2 2 u,
+      0 1 u,
       royalty_wc 8  i,      // royalty wc
       royalty_addr 256 u,   // royalty in-workchain address
    b> ref,
@@ -90,14 +91,12 @@ null
 
 // final external query to blockchain
 <b 
-   b{1000} s,      // 10 - external header prefix, 00 - none from_address (external msg)
-   b{100} s,       // 10+0 - to_address prefix      
-   smc_addr addr,  // to_address: smc
-   b{00001} s,
-   b{1} s,         // include state_init as a ref 
-   state_init ref, // state_init
-   b{0} s,         // no body
-   null dict,      // body
+   b{1000100} s, 
+   smc_addr addr, 
+   b{000010} s, 
+   state_init <s s, 
+   b{0} s,
+   null dict,
 b>
 
 cr

@@ -10,9 +10,22 @@ export FIFTPATH=$FIFT_PATH/lib
 # compile project
 ./compile.sh
 
-# create init *.boc file
-echo "Deploying..."
+# running command
+command=$1
+echo
+echo "Running command: " $command " ..."
+echo
 
-$FIFT_EXE_PATH -s $REQUESTS_PATH/nft-collection-deploy.fif
+if [[ $command == "deploy" ]]
+then
+    seqno=$2
+    coll_init_ng=$3
+    $FIFT_EXE_PATH -s $REQUESTS_PATH/nft-collection-deploy.fif $seqno $coll_init_ng
+elif [[ $command == "get_collection_data" ]]
+then
+    echo "no yet!"
+else
+    echo "Unknown command"
+fi
 
-echo "Deploy done"
+echo "Done"

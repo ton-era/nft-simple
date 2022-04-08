@@ -2,22 +2,24 @@
 "TonUtil.fif" include
 "Asm.fif" include
 
-// parameters
-def? $1 { @' $1 } { "build" } cond =: build-path  // build path
-def? $2 { @' $2 } { "../secrets" } cond =: secret-path  // secret path
-def? $3 { @' $3 } { build-path +"/nft-collection-deploy" } cond =: file-base  // file path prefix
 
-0 =: collection_wc
-0 =: seqno
+// parse CLI & params
+
+def? $1 { @' $1 } { "1" } cond parse-int =: seqno  // wallet seqno
+def? $2 { @' $2 } { "500000000" } cond parse-int =: coll_init_ng  // in nanotons
+def? $3 { @' $3 } { "build" } cond =: build_path  // build path
+def? $4 { @' $4 } { "../secrets" } cond =: secret_path  // secret path
+def? $5 { @' $5 } { "addr" } cond =: addr_path  // address path
+def? $6 { @' $6 } { build_path +"/nft-collection-deploy" } cond =: file_base  // file path prefix
+
+0 =: coll_wc
 3 =: send_mode
-50000000 =: collection_init_coins
-
-// collection owner address
-"kQBjH7QOlm36j9eae_w3d1AGx7GcOalxXo_blPv5PcfOgw9K"
-$>smca 0= abort"bad address"
-=: owner_flags
-=: owner_addr
-=: owner_wc
+secret_path +"/wallet.pk" load-keypair nip =: wallet_pk
+addr_path +"/wallet.addr" load-address 2=: wallet_addr
+addr_path +"/owner.addr" load-address 2=: owner_addr
+addr_path +"/royalty.addr" load-address 2=: royalty_addr
+100 =: royalty_base
+5 =: royalty_factor
 
 // collection content URI (uri --> base64 (UTF-8-based) encode)
 "aHR0cHM6Ly9pcGZzLmlvL2lwZnMvUW1jbkt4OGNGY3VXUkp4czRyajdxTDUzd1VvaEhmaVRjWnVySGZ4dmZoZm5vWA=="
@@ -27,39 +29,17 @@ $>smca 0= abort"bad address"
 "aHR0cHM6Ly9pcGZzLmlvL2lwZnMv"
 =: item_content_base_uri
 
-// royalty, % = 100 * factor / base
-100 =: royalty_base
-5 =: royalty_factor
-
-// royalty address
-"kQBjH7QOlm36j9eae_w3d1AGx7GcOalxXo_blPv5PcfOgw9K"  
-$>smca 0= abort"bad address"
-=: royalty_flags
-=: royalty_addr
-=: royalty_wc
-
-// wallet address
-"kQBjH7QOlm36j9eae_w3d1AGx7GcOalxXo_blPv5PcfOgw9K"  
-$>smca 0= abort"bad address"
-=: wallet_flags
-=: wallet_addr
-=: wallet_wc
-
-// wallet pk
-secret-path +"/wallet.pk" load-keypair nip =: wallet_pk
-
 
 // --------------------- Collection contract state init ---------------------
 
 // code
-build-path +"/nft-collection-code.fif" include =: collection_code
-build-path +"/nft-item-code.fif" include =: item_code
+build_path +"/nft-collection-code.fif" include =: collection_code
+build_path +"/nft-item-code.fif" include =: item_code
 
 // data
 <b
    b{100} s,           // 10+0 - owner address prefix
-   owner_wc 8 i,       // owner wc
-   owner_addr 256 u,   // owner in-workchain address
+   owner_addr addr,    // owner address
    0 64 u,             // next item index
    <b  // content
       <b  // collection content
@@ -75,8 +55,7 @@ build-path +"/nft-item-code.fif" include =: item_code
       royalty_factor 16 u,  // royalty factor
       royalty_base 16 u,    // royalty base
       b{100} s,             // 10+0 - royalty address prefix
-      royalty_wc 8  i,      // royalty wc
-      royalty_addr 256 u,   // royalty address
+      royalty_addr addr,   // royalty address
    b> ref,
 b> =: collection_data
 
@@ -90,9 +69,9 @@ b> =: collection_state_init
 collection_state_init ."StateInit: " cr <s csr. cr
 
 // create smart contract address = hash(StateInit)
-collection_state_init hashu collection_wc swap 2dup 2constant collection_addr
+collection_state_init hashu coll_wc swap 2dup 2constant collection_addr
 ."Smart contract address: " 2dup .addr cr
-2dup file-base +".addr" save-address-verbose
+2dup file_base +".addr" save-address-verbose
 ."Non-bounceable address (for init): " 2dup 7 .Addr cr
 ."Bounceable address (for later access): " 6 .Addr cr
 
@@ -113,16 +92,16 @@ collection_state_init hashu collection_wc swap 2dup 2constant collection_addr
       collection_addr addr,
 
       // init coints + type
-      4 4 u,
-      collection_init_coins 32 u,
+      coll_init_ng Gram,
       b{0} s,
 
-      // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 + 1 + 1 = 106
-      0 106 u,
+      // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104
+      0 104 u,
 
       // collection state init (include as ref)
-      b{1} s,
-      collection_state_init ref,
+      b{0} s,
+      null dict,
+      // collection_state_init <s s,
 
       // no body
       b{0} s,
@@ -138,30 +117,31 @@ internal_body hashu wallet_pk ed25519_sign_uint =: signature
 // --------------------- Final query to Blockchain ---------------------
 
 <b
-   // header: prefix, none from _address (external msg)
+   // header: prefix, none from_address (external msg)
    b{1000} s,
 
-   // to_address: address prefix, wc, address
+   // from_address: address prefix, wc, address
    b{100} s,
-   wallet_wc 8 i,
-   wallet_addr 256 u,
+   wallet_addr addr,
 
    // grams importFee = 0
    0 Gram,
 
-   // no state_init
-   b{0} s,
-   null dict,
-
-   // body as slice - to be executed by wallet
-   b{0} s,
+   // no state_init, body as slice
+   b{00} s,
    signature B,
    internal_body <s s,
 b>
 
 cr
 2 boc+>B dup Bx. cr
-file-base +"-query.boc" tuck B>file
+file_base +"-query.boc" tuck B>file
 ."(Saved smart contract creating query to file " type .")" cr
 
-cr ."Collection Address:" cr collection_addr 6 .Addr cr cr
+cr ."Collection Address:" cr collection_addr 6 .Addr cr
+cr ."Owner Address:" cr owner_addr 6 .Addr cr
+cr ."Roylaty Address:" cr royalty_addr 6 .Addr cr
+cr ."Wallet Address:" cr wallet_addr 6 .Addr cr
+
+cr ."seqno: " seqno .dump
+cr ."amount (ng): " seqno coll_init_ng .dump cr cr

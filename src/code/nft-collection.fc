@@ -165,6 +165,15 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
           .end_cell());
 }
 
+
+;;() recv_external(slice in_msg) impure {
+;;  if (slice_empty?(in_msg)) {
+;;    return ();
+;;  }
+;;  accept_message();
+;;}
+
+
 int get_me() method_id {
-  return 123;
+  return 123456;
 }
