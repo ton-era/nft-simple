@@ -175,5 +175,5 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
 
 
 int get_me() method_id {
-  return 1234567;
+  return 12345678;
 }

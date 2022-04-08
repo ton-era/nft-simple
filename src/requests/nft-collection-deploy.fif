@@ -100,8 +100,7 @@ collection_state_init hashu coll_wc swap 2dup 2constant collection_addr
 
       // collection state init (include as ref)
       b{0} s,
-      null dict,
-      // collection_state_init <s s,
+      collection_state_init <s s,
 
       // no body
       b{0} s,
@@ -138,10 +137,10 @@ cr
 file_base +"-query.boc" tuck B>file
 ."(Saved smart contract creating query to file " type .")" cr
 
-cr ."Collection Address:" cr collection_addr 6 .Addr cr
 cr ."Owner Address:" cr owner_addr 6 .Addr cr
 cr ."Roylaty Address:" cr royalty_addr 6 .Addr cr
 cr ."Wallet Address:" cr wallet_addr 6 .Addr cr
+cr ."Collection Address:" cr collection_addr 6 .Addr cr
 
 cr ."seqno: " seqno .dump
 cr ."amount (ng): " seqno coll_init_ng .dump cr cr
