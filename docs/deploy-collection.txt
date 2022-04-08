@@ -1,0 +1,61 @@
+How to deploy a new NFT collection.
+
+---------------------------------------
+
+1. Get deployer, owner and royaltee addresses (usually these three are the same person). You also will need deployer's wallet private key.
+
+2. Prepare collection URI and item base URI. Fill it in nft-collction-deploy.fif script.
+
+3. Run deploy script:
+
+    > cd src
+    > ./api.sh [SEQNO] [COLLECTION_INIT_GRAMS]
+
+Here [SEQNO] - the latest deployer's wallet seqno, [COLLECION_INIT_GRAMS] - initial transfer from deployer's wallet to collection new address (in nanotons, usually 50000000 nTON = 0.05 TON)
+Here is an example output:
+
+    Owner Address:
+    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
+
+    Roylaty Address:
+    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
+
+    Wallet Address:
+    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
+
+    Collection Address:
+    kQDQL9NTgE2LZNW3IkyEjRwEY-hKboYiGtZoCKAVanhp-XAE
+
+    seqno: 22 
+    amount (ng): 50000000
+
+You can see new collection address kQDQL...XAE along with all other addresses.
+This script isn't push a query to blockchain, it only prepares query *.boc file.
+
+4. Run command
+
+    > /opt/ton/build/lite-client/lite-client \
+        -C /opt/ton/build/testnet-global.config.json \
+        -c "sendfile build/nft-collection-deploy-query.boc"
+
+with the proper config file (testnet or mainnet). If everything is OK you'll see green last output with status = 1.
+If it's not check [SEQNO] parameter is correct.
+
+5. Check collection address in explorer. For testnet it will be
+https://testnet.ton.sh/address/[NEW_COLLECTION_ADDRESS]
+
+It should has Balance > 0 (approx 0.05 TON), State = active.
+
+6. Run some collection smartcontract method like
+
+> curl -X 'POST' \
+    'https://testnet.toncenter.com/api/v2/runGetMethod' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d '{
+    "address": "[NEW_COLLECTION_ADDRESS]",
+    "method": "get_collection_data",
+    "stack": []
+    }'
+
+If everything is OK you'll get correct response with collection data URI etc.
