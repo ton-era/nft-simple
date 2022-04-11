@@ -94,7 +94,7 @@ collection_state_init hashu coll_wc swap 2dup 2constant collection_addr
       coll_init_ng Gram,
       b{0} s,
 
-      // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104
+      // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104 (to be filled by server)
       0 104 u,
 
       // collection state init (include as ref) - 11, no body - 0
