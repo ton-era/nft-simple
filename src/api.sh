@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FIFT_PATH="/opt/ton/ton/crypto/fift"
-FIFT_EXE_PATH="/opt/ton/build/crypto/fift"
+FIFT_PATH="/opt/ton/crypto/fift"
+FIFT_EXE_PATH="/opt/liteclient-build/crypto/fift"
 REQUESTS_PATH="requests"
 
 

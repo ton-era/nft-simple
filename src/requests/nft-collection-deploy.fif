@@ -14,10 +14,10 @@ def? $6 { @' $6 } { build_path +"/nft-collection-deploy" } cond =: file_base  //
 
 0 =: coll_wc
 3 =: send_mode
-secret_path +"/wallet.pk" load-keypair nip =: wallet_pk
-addr_path +"/wallet.addr" load-address 2=: wallet_addr
-addr_path +"/owner.addr" load-address 2=: owner_addr
-addr_path +"/royalty.addr" load-address 2=: royalty_addr
+secret_path +"/wallet.pk"    load-keypair nip =: wallet_pk
+addr_path   +"/wallet.addr"  load-address 2=: wallet_addr
+addr_path   +"/owner.addr"   load-address 2=: owner_addr
+addr_path   +"/royalty.addr" load-address 2=: royalty_addr
 100 =: royalty_base
 5 =: royalty_factor
 

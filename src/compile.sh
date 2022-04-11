@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FUNC="/opt/ton/build/crypto/func"
-FIFT_EXE_PATH="/opt/ton/build/crypto/fift"
+FUNC="/opt/liteclient-build/crypto/func"
+FIFT_EXE_PATH="/opt/liteclient-build/crypto/fift"
 OUT_PATH="build"
 
 
