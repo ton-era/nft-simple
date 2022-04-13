@@ -51,7 +51,7 @@ cr cr
     3 Gram,
 b> .dump cr cr
 
-"../docs/simple-wallet.addr" load-address 2=: wallet_addr
+"simple-wallet.addr" load-address 2=: wallet_addr
 
 cr ."Address:" cr wallet_addr 6 .Addr cr cr
 
@@ -74,3 +74,43 @@ owner_flags .dump cr cr
 owner_wc .dump cr
 owner_addr .dump cr
 owner_flags .dump cr cr
+
+.">>>>>>>>>>>" cr cr
+
+
+{ base64>B 32 B| 
+  dup Blen { 32 B>i@ } { drop Basechain } cond
+  swap 256 B>u@
+} : load-address-fromb64
+
+// "gBntQMBgfnb7aEQweH0Ji1heRiKV9SImje1JK0W3fB+HYA==" load-address-fromb64 .dump
+
+<b
+    "gBntQMBgfnb7aEQweH0Ji1heRiKV9SImje1JK0W3fB+HYA==" base64>B B,
+b> dup dup <s 
+3 u@ .dump cr <s
+8 i@ .dump cr <s
+256 u@ .dump cr cr
+
+
+/*
+ 3 B| 8 B| 256 B|
+=: _
+=: nft_addr
+=: nft_wc
+=: nft_flags
+
+nft_wc .dump cr
+nft_addr .dump cr
+nft_flags .dump cr cr
+*/
+
+
+"EQDPagYDA_O320Ihg8PoTFrC8jEUr6kRNG9qSVotu-D8O6QG"  $>smca 0= abort"bad address"
+=: nft_flags
+=: nft_addr
+=: nft_wc
+
+nft_wc .dump cr
+nft_addr .dump cr
+nft_flags .dump cr cr

@@ -5,7 +5,7 @@
 
 // parse CLI & params
 
-def? $1 { @' $1 } { "1" } cond parse-int =: seqno  // wallet seqno
+$1 parse-int =: seqno  // wallet seqno
 def? $2 { @' $2 } { "50000000" } cond parse-int =: coll_init_ng  // in nanotons
 def? $3 { @' $3 } { "build" } cond =: build_path  // build path
 def? $4 { @' $4 } { "../secrets" } cond =: secret_path  // secret path
@@ -22,7 +22,7 @@ addr_path   +"/royalty.addr" load-address 2=: royalty_addr
 5 =: royalty_factor
 
 // collection content URI (uri --> base64 (UTF-8-based) encode)
-"aHR0cHM6Ly9pcGZzLmlvL2lwZnMvUW1jbkt4OGNGY3VXUkp4czRyajdxTDUzd1VvaEhmaVRjWnVySGZ4dmZoZm5vWA=="
+"aHR0cHM6Ly9pcGZzLmlvL2lwZnMvUW1lZjJIMzg5bmQ5dldiOXI1V254NU1nNllnQ05OVjg2MnNNNktlWWRKSE02ND9maWxlbmFtZT1jb2xsZWN0aW9uLmpzb24="
 =: collection_content_uri
 
  // item content base uri (uri -->  base64 (UTF-8-based) encode)

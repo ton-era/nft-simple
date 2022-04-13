@@ -24,8 +24,11 @@ then
 elif [[ $command == "mint" ]]
 then
     seqno=$2
-    item_init_ng=$3
-    $FIFT_EXE_PATH -s $REQUESTS_PATH/nft-item-mint.fif $seqno $item_init_ng
+    item_index=$3
+    coll_address=$4
+    coll_ng=$5
+    item_ng=$6
+    $FIFT_EXE_PATH -s $REQUESTS_PATH/nft-item-mint.fif $seqno $item_index $coll_address $coll_ng $item_ng
 else
     echo "Unknown command"
 fi

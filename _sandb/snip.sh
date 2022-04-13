@@ -1,3 +1,3 @@
-FIFT_EXE_PATH="/opt/ton/build/crypto/fift"
+FIFT_EXE_PATH="/opt/liteclient-build/crypto/fift"
 
-$FIFT_EXE_PATH -s ../docs/snippets.fif $OUT_PATH
+$FIFT_EXE_PATH -s snippets.fif $OUT_PATH

@@ -2,9 +2,9 @@ How to deploy a new NFT collection.
 
 ---------------------------------------
 
-1. Get deployer, owner and royaltee addresses (usually these three are the same person). You also will need deployer's wallet private key.
+1. Get deployer and NFT owner addresses (usually these two are the same person at the time of fisrt mint). You also will need deployer's wallet private key.
 
-2. Prepare collection URI and item base URI. Fill it in nft-collection-deploy.fif script.
+2. Prepare NFT URI. Fill it in nft-collction-deploy.fif script.
 
 3. Find correct seqno from working wallet by web query
 
@@ -27,53 +27,56 @@ or by liteclient query
 4. Run deploy script:
 
     > cd src
-    > ./api.sh [SEQNO] [COLLECTION_INIT_GRAMS]
+    > ./api.sh [SEQNO] [COLLECTION_ADDRESS] [NFT_INDEX]
 
-Here [SEQNO] - the latest deployer's wallet seqno, [COLLECION_INIT_GRAMS] - initial transfer from deployer's wallet to collection new address (in nanotons, usually 50000000 nTON = 0.05 TON)
+Here [SEQNO] - the latest deployer's wallet seqno, [COLLECTION_ADDRESS] - parent collection address, [NFT_INDEX] - this item index.
 Here is an example output:
-
-    Owner Address:
-    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
-
-    Roylaty Address:
-    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
 
     Wallet Address:
     kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
 
+    Item Owner Address:
+    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
+
     Collection Address:
-    kQDQL9NTgE2LZNW3IkyEjRwEY-hKboYiGtZoCKAVanhp-XAE
+    "kQBbZY6xmT2bnzGXYP+Snz+ZtsISa5VBDw3P58w3GW+i36aU" 
 
-    seqno: 22 
-    amount (ng): 50000000
+    seqno: 0 
+    item index: 0 
+    coll amount (ng): 70000000 
+    nft amount (ng):  50000000 
 
-You can see new collection address kQDQL...XAE along with all other addresses.
 This script isn't push a query to blockchain, it only prepares query *.boc file.
 
 5. Run command
 
     > /opt/liteclient-build/lite-client/lite-client \
         -C /opt/liteclient-build/testnet-global.config.json \
-        -c "sendfile build/nft-collection-deploy-query.boc"
+        -c "sendfile build/nft-item-mint-query.boc"
 
 with the proper config file (testnet or mainnet). If everything is OK you'll see green last output with status = 1.
 If it's not check [SEQNO] parameter is correct.
 
-6. Check collection address in explorer. For testnet it will be
-https://testnet.ton.sh/address/[NEW_COLLECTION_ADDRESS]
+5. Check collection address in explorer. For testnet it will be
+https://testnet.ton.sh/address/[COLLECTION_ADDRESS]
 
-It should has Balance > 0 (approx 0.05 TON), State = active.
+It should has 0.07 TON input transaction and 0.05 output one.
+Check a "To" address for the last transaction - this is the address of new NFT. Its balance should be approx 0.05 TON, State = active.
 
-7. Run some collection smartcontract method like
+6. You can get NFT address from its collection API:
 
 > curl -X 'POST' \
     'https://testnet.toncenter.com/api/v2/runGetMethod' \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
-    "address": "[NEW_COLLECTION_ADDRESS]",
-    "method": "get_collection_data",
-    "stack": []
+    "address": "kQBbZY6xmT2bnzGXYP-Snz-ZtsISa5VBDw3P58w3GW-i36aU",
+    "method": "get_nft_address_by_index",
+    "stack": [["num", 0]]
     }'
 
-If everything is OK you'll get correct response with collection data URI etc.
+If everything is OK you'll get correct response with base64-encoded NFT address:
+gBntQMBgfnb7aEQweH0Ji1heRiKV9SImje1JK0W3fB+HYA== 
+
+Decode it to bytes - it will have 34 Bytes:
+34*8 = 272 = 3(flags) + 8(wc) + 256(addr) + 5(tail)
