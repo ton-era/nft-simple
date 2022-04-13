@@ -5,12 +5,16 @@
 
 // parse CLI & params
 
-$1 parse-int =: seqno  // wallet seqno
-def? $2 { @' $2 } { "50000000" } cond parse-int =: coll_init_ng  // in nanotons
-def? $3 { @' $3 } { "build" } cond =: build_path  // build path
-def? $4 { @' $4 } { "../secrets" } cond =: secret_path  // secret path
-def? $5 { @' $5 } { "addr" } cond =: addr_path  // address path
-def? $6 { @' $6 } { build_path +"/nft-collection-deploy" } cond =: file_base  // file path prefix
+$1 parse-int =: seqno         // wallet seqno
+$2 =: collection_content_uri  // collection content URI (uri --> base64 (UTF-8-based) encode)
+$3 =: item_content_base_uri   // item content base uri (uri -->  base64 (UTF-8-based) encode)
+$4 =: royalty_base            // royalty,% = 100*royalty_factor/royalty_base
+$5 =: royalty_factor
+def? $6 { @' $6 } { "50000000" } cond parse-int =: coll_init_ng  // in nanotons
+def? $7 { @' $7 } { "../secrets" } cond =: secret_path  // secret path
+def? $8 { @' $8 } { "addr" } cond =: addr_path  // address path
+def? $9 { @' $9 } { "build" } cond =: build_path  // build path
+def? $10 { @' $10 } { build_path +"/nft-collection-deploy" } cond =: file_base  // file path prefix
 
 0 =: coll_wc
 3 =: send_mode
@@ -18,16 +22,6 @@ secret_path +"/wallet.pk"    load-keypair nip =: wallet_pk
 addr_path   +"/wallet.addr"  load-address 2=: wallet_addr
 addr_path   +"/owner.addr"   load-address 2=: owner_addr
 addr_path   +"/royalty.addr" load-address 2=: royalty_addr
-100 =: royalty_base
-5 =: royalty_factor
-
-// collection content URI (uri --> base64 (UTF-8-based) encode)
-"aHR0cHM6Ly9pcGZzLmlvL2lwZnMvUW1lZjJIMzg5bmQ5dldiOXI1V254NU1nNllnQ05OVjg2MnNNNktlWWRKSE02ND9maWxlbmFtZT1jb2xsZWN0aW9uLmpzb24="
-=: collection_content_uri
-
- // item content base uri (uri -->  base64 (UTF-8-based) encode)
-"aHR0cHM6Ly9pcGZzLmlvL2lwZnMv"
-=: item_content_base_uri
 
 
 // --------------------- Collection contract state init ---------------------

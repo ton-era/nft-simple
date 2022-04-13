@@ -6,13 +6,13 @@
 // parse CLI & params
 
 $1 parse-int =: seqno  // wallet seqno
-$2 =: coll_address  // wallet seqno
+$2 =: coll_address     // collection address
 $3 parse-int =: item_index  // NFT next index in collection
 def? $4 { @' $4 } { "70000000" } cond parse-int =: coll_ng  // nanotons to collection
 def? $5 { @' $5 } { "50000000" } cond parse-int =: item_ng  // nanotons from collection to nft
-def? $6 { @' $6 } { "build" } cond =: build_path  // build path
-def? $7 { @' $7 } { "../secrets" } cond =: secret_path  // secret path
-def? $8 { @' $8 } { "addr" } cond =: addr_path  // address path
+def? $6 { @' $6 } { "../secrets" } cond =: secret_path  // secret path
+def? $7 { @' $7 } { "addr" } cond =: addr_path  // address path
+def? $8 { @' $8 } { "build" } cond =: build_path  // build path
 def? $9 { @' $9 } { build_path +"/nft-item-mint" } cond =: file_base  // file path prefix
 
 3 =: send_mode
