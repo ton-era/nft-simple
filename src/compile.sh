@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 FUNC="/opt/liteclient-build/crypto/func"
 FIFT_EXE_PATH="/opt/liteclient-build/crypto/fift"
 OUT_PATH="build"

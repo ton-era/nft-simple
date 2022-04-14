@@ -106,7 +106,7 @@ nft_flags .dump cr cr
 */
 
 
-"EQDPagYDA_O320Ihg8PoTFrC8jEUr6kRNG9qSVotu-D8O6QG"  $>smca 0= abort"bad address"
+"kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM"  $>smca 0= abort"bad address"
 =: nft_flags
 =: nft_addr
 =: nft_wc
@@ -114,3 +114,7 @@ nft_flags .dump cr cr
 nft_wc .dump cr
 nft_addr .dump cr
 nft_flags .dump cr cr
+
+0 nft_addr 4 smca>$ .dump cr
+0 nft_addr 2 smca>$ .dump cr
+0 nft_addr 0 smca>$ .dump cr cr

@@ -1,0 +1,24 @@
+env:
+  api_base_url: 'https://testnet.toncenter.com/api/v2/'
+  api_token: 'a5419807797127ae1ba42019ce22fe626c6ef66d5fc39fa07cd7fbd5c02f9717'
+  script_path: '../api.sh'
+general:
+  secret_path: '../../secrets/'
+  wallet_addr: 'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+  owner_addr: 'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+  royalty_addr: 'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+collection:
+  collection_content_uri: 'https://ipfs.io/ipfs/Qmef2H389nd9vWb9r5Wnx5Mg6YgCNNV862sM6KeYdJHM64?filename=collection.json'
+  item_content_base_uri: 'https://ipfs.io/ipfs/'
+  royalty_base: 100
+  royalty_factor: 5
+  coll_init_ng: 50000000
+  coll_tomint_ng: 70000000
+  item_init_ng: 50000000
+items:
+  - index: 0
+    item_content_uri: 'QmWBXB7PghQpG1sD2mQjiKBDjhTmTG7CBuEdXWnW7TPeRW?filename=harold.jpg'
+  - index: 1
+    item_content_uri: 'QmfKawqCp7zxa5uckmmU7kshCLDduiciCp4N6WCeZcd9Pw?filename=math.jpeg'
+  - index: 2
+    item_content_uri: 'QmP7YPwQK1RfrQwxMawY8Ez4HdTDznKoJY1hhvvNg7bEfe?filename=googe_dino.png'

@@ -1,10 +1,10 @@
-How to deploy a new NFT collection.
+How to transfer NFT ownership.
 
 ---------------------------------------
 
-1. Get deployer, owner and royaltee addresses (usually these three are the same person). You also will need deployer's wallet private key.
+1. Get deployer and NFT collection addresses. You also will need deployer's wallet private key.
 
-2. Prepare collection URI and item base URI. Fill it in nft-collection-deploy.fif script.
+2. Prepare NFT URI. Fill it in nft-item-transfer.fif script.
 
 3. Find correct seqno from working wallet by web query
 
@@ -27,53 +27,50 @@ or by liteclient query
 4. Run deploy script:
 
     > cd src
-    > ./api.sh [SEQNO] [COLLECTION_INIT_GRAMS]
+    > ./api.sh transfer [SEQNO] [NFT_ADDRESS] [NEW_OWNER_ADDRESS]
 
-Here [SEQNO] - the latest deployer's wallet seqno, [COLLECION_INIT_GRAMS] - initial transfer from deployer's wallet to collection new address (in nanotons, usually 50000000 nTON = 0.05 TON)
+Here [SEQNO] - the latest deployer's wallet seqno, [NFT_ADDRESS] - NDT to be transferred, [NEW_OWNER_ADDRESS] - NFT's new owner address.
 Here is an example output:
-
-    Owner Address:
-    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
-
-    Roylaty Address:
-    kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
 
     Wallet Address:
     kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM
 
-    Collection Address:
-    kQDQL9NTgE2LZNW3IkyEjRwEY-hKboYiGtZoCKAVanhp-XAE
+    New Owner Address:
+    "EQCsiTk+l5kS+spVGoTARi0eg8C3edKqZWl2CilgLUfDE+Li" 
 
-    seqno: 22 
-    amount (ng): 50000000
+    NFT Address:
+    "EQDPagYDA/O320Ihg8PoTFrC8jEUr6kRNG9qSVotu+D8O6QG" 
 
-You can see new collection address kQDQL...XAE along with all other addresses.
+    seqno: 38
+
 This script isn't push a query to blockchain, it only prepares query *.boc file.
 
 5. Run command
 
     > /opt/liteclient-build/lite-client/lite-client \
         -C /opt/liteclient-build/testnet-global.config.json \
-        -c "sendfile build/nft-collection-deploy-query.boc"
+        -c "sendfile build/nft-item-transfer-query.boc"
 
 with the proper config file (testnet or mainnet). If everything is OK you'll see green last output with status = 1.
 If it's not check [SEQNO] parameter is correct.
 
-6. Check collection address in explorer. For testnet it will be
-https://testnet.ton.sh/address/[NEW_COLLECTION_ADDRESS]
+5. Check collection address in explorer for neccessary transfer transaction
+https://testnet.ton.sh/address/[NFT_ADDRESS]
 
-It should has Balance > 0 (approx 0.05 TON), State = active.
-
-7. Run some collection smartcontract method like
+6. Check NFT new owner fron its API:
 
 > curl -X 'POST' \
     'https://testnet.toncenter.com/api/v2/runGetMethod' \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
-    "address": "[NEW_COLLECTION_ADDRESS]",
-    "method": "get_collection_data",
+    "address": "EQDPagYDA_O320Ihg8PoTFrC8jEUr6kRNG9qSVotu-D8O6QG",
+    "method": "get_nft_data",
     "stack": []
     }'
 
-If everything is OK you'll get correct response with collection data URI etc.
+If everything is OK you'll get correct response with base64-encoded new NFT owner address in the 4th place:
+gAtssdYzJ7Nz5jLsH/JT5/M22EJNcqgh4bn8+YbjLfRb4A==
+
+Decode it to bytes - it will have 34 Bytes:
+34*8 = 272 = 3(flags) + 8(wc) + 256(addr) + 5(tail)
