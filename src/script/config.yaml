@@ -1,0 +1,38 @@
+env:
+  api_base_url: 'https://testnet.toncenter.com/api/v2/'
+  api_token: '76577d29bdc879791f7470c117c3aac144d0b41583dd81fbe4e831740313bce5'
+  func_compiler_path: '/opt/liteclient-build/crypto/func'
+  fift_executer_path: '/opt/liteclient-build/crypto/fift'
+  out_path: '../build'
+  secret_path: '../../secrets/'
+  wallet_addr:  'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+compile:
+  src_path: '../code'
+  src_files:
+    - ['stdlib.fc', 'params.fc', 'op-codes.fc', 'nft-item.fc']
+    - ['stdlib.fc', 'params.fc', 'op-codes.fc', 'nft-collection.fc']
+    - ['stdlib.fc', 'params.fc', 'op-codes.fc', 'nft-marketplace.fc']
+    - ['stdlib.fc', 'params.fc', 'op-codes.fc', 'nft-sale.fc']
+  tif_path: '../templates'
+  tif_files:
+    - ['nft-collection-deploy.tif', 'wallet-external-base.tif']
+collection_deploy:
+  collection_content_uri: 'https://ipfs.io/ipfs/Qmef2H389nd9vWb9r5Wnx5Mg6YgCNNV862sM6KeYdJHM64?filename=collection.json'
+  item_content_base_uri:  'https://ipfs.io/ipfs/'
+  royalty_base:   100
+  royalty_factor: 5            # 5% royalty
+  coll_init_ng:   50_000_000   # 0.05 TON
+  owner_addr:   'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+  royalty_addr: 'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+item_mint:
+  collection_addr: null
+  owner_addr: 'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+  coll_tomint_ng: 70_000_000   # 0.07 TON
+  item_init_ng:   50_000_000   # 0.05 TON
+  items:
+    - index: 0
+      item_content_uri: 'QmWBXB7PghQpG1sD2mQjiKBDjhTmTG7CBuEdXWnW7TPeRW?filename=harold.jpg'
+    - index: 1
+      item_content_uri: 'QmfKawqCp7zxa5uckmmU7kshCLDduiciCp4N6WCeZcd9Pw?filename=math.jpeg'
+    - index: 2
+      item_content_uri: 'QmP7YPwQK1RfrQwxMawY8Ez4HdTDznKoJY1hhvvNg7bEfe?filename=googe_dino.png'

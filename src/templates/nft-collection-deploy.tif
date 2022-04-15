@@ -1,0 +1,104 @@
+{{ script_name }} =: script_name
+
+// Params
+
+// wallet seqno
+{{ seqno }} =: seqno
+
+// collection content URI (uri --> base64 (UTF-8-based) encode)
+{{ collection_content_uri }} =: collection_content_uri
+
+// item content base uri (uri -->  base64 (UTF-8-based) encode)
+{{ item_content_base_uri }} =: item_content_base_uri  
+
+// royalty,% = 100*royalty_factor/royalty_base
+{{ royalty_base }} =: royalty_base            
+{{ royalty_factor }} =: royalty_factor
+
+// in nanotons, dft 50000000
+{{ coll_init_ng }} =: coll_init_ng  
+
+// secret path
+{{ secret_path }} =: secret_path 
+
+// addresses
+{{ wallet_addr }} =: wallet_addr
+{{ owner_addr }} =: owner_addr
+{{ royalty_addr }} =: royalty_addr
+
+// build path
+{{ build_path }} =: build_path  
+
+// file path prefix
+build_path script_name $+ =: file_base
+secret_path +"/wallet.pk"    load-keypair nip =: wallet_pk
+0 =: coll_wc
+3 =: send_mode
+
+
+// --------------------- Collection contract state init ---------------------
+
+// code
+build_path +"/nft-collection-code.fif" include =: collection_code
+build_path +"/nft-item-code.fif" include =: item_code
+
+// data
+<b
+   b{100} s,           // 10+0 - owner address prefix
+   owner_addr addr,    // owner address
+   0 64 u,             // next item index
+   <b  // content
+      <b  // collection content
+         0x01 8 u, // offchain prefix 
+         collection_content_uri base64>B B, // collection URI
+      b> ref,
+      <b  // common content
+         item_content_base_uri base64>B B, // item base URI
+      b> ref,            
+   b> ref,
+   item_code ref, // item code
+   <b  // royalty
+      royalty_factor 16 u,  // royalty factor
+      royalty_base 16 u,    // royalty base
+      b{100} s,             // 10+0 - royalty address prefix
+      royalty_addr addr,    // royalty address
+   b> ref,
+b> =: collection_data
+
+// create StateInit = (flags, code, data, libs)
+<b 
+   b{00110} s, 
+   collection_code ref, 
+   collection_data ref,
+b> =: collection_state_init
+collection_state_init ."StateInit: " cr <s csr. cr
+
+// create smart contract address = hash(StateInit)
+collection_state_init hashu coll_wc swap 2dup 2constant collection_addr
+."Smart contract address: " 2dup .addr cr
+2dup file_base +".addr" save-address-verbose
+."Non-bounceable address (for init): " 2dup 7 .Addr cr
+."Bounceable address (for later access): " 6 .Addr cr
+
+
+// --------------------- Internal message body from Wallet to Contract ---------------------
+
+<b
+   // int_msg_info, ihr_disabled, bounce, bounced, src_address (to be filled by server)
+   b{010000} s, 
+
+   // to_address: address prefix, wc, address
+   b{100} s,
+   collection_addr addr,
+
+   // init coints + type
+   coll_init_ng Gram,
+   b{0} s,
+
+   // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104 (to be filled by server)
+   0 104 u,
+
+   // collection state init (include as ref) - 11, no body - 0
+   b{110} s,
+   collection_state_init ref,
+b> =: request_body

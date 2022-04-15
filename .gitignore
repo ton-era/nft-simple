@@ -3,3 +3,6 @@
 
 # Secret files
 /secrets
+
+# Python files
+__pycache__
