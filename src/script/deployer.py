@@ -66,7 +66,7 @@ class Deployer:
 
                 result_template = Template(base_template).render(contract_body=target_template)
 
-                out_file = os.path.join(self.out_path, target_file.split('.')[0] + '.fif')
+                out_file = os.path.join(self.out_path, target_file.split('.')[0] + '.tif')
                 with open(out_file, 'w') as f:
                     f.writelines(result_template)
             except Exception as err:
