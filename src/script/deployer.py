@@ -53,7 +53,7 @@ class Deployer:
         return True
 
     def build_templates(self, tif_path, tif_files, **kwargs):
-        print(f'Build *.tif templates from {tif_path}...')
+        print(f'Build *.tif templates from {tif_path} ...')
 
         for target_file, base_file in tif_files:
             try:
@@ -67,6 +67,7 @@ class Deployer:
                 result_template = Template(base_template).render(contract_body=target_template)
 
                 out_file = os.path.join(self.out_path, target_file.split('.')[0] + '.tif')
+                print(out_file)
                 with open(out_file, 'w') as f:
                     f.writelines(result_template)
             except Exception as err:
@@ -112,11 +113,7 @@ class Deployer:
         }
         print(f'  > script params:\n{pprint.pformat(params)}')
         
-        result_template = Template(base_template).render(contract_body=target_template)
-
-        out_file = os.path.join(self.out_path, target_file.split('.')[0] + '.fif')
-        with open(out_file, 'w') as f:
-            f.writelines(result_template)
+        
 
         if run:
             pass
