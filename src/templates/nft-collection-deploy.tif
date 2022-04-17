@@ -3,7 +3,7 @@
 // Params
 
 // wallet seqno
-{{ seqno }} =: seqno
+{{ seqno }} parse-int =: seqno
 
 // collection content URI (uri --> base64 (UTF-8-based) encode)
 {{ collection_content_uri }} =: collection_content_uri
@@ -12,19 +12,31 @@
 {{ item_content_base_uri }} =: item_content_base_uri  
 
 // royalty,% = 100*royalty_factor/royalty_base
-{{ royalty_base }} =: royalty_base            
-{{ royalty_factor }} =: royalty_factor
+{{ royalty_base }} parse-int =: royalty_base            
+{{ royalty_factor }} parse-int =: royalty_factor
 
 // in nanotons, dft 50000000
-{{ coll_init_ng }} =: coll_init_ng  
+{{ coll_init_ng }} parse-int =: coll_init_ng  
 
 // secret path
 {{ secret_path }} =: secret_path 
 
 // addresses
-{{ wallet_addr }} =: wallet_addr
-{{ owner_addr }} =: owner_addr
-{{ royalty_addr }} =: royalty_addr
+
+{{ wallet_address }} dup =: wallet_address $>smca 0= abort"bad address"
+=: wallet_flags
+=: wallet_addr
+=: wallet_wc
+
+{{ owner_address }} dup =: owner_address $>smca 0= abort"bad address"
+=: owner_flags
+=: owner_addr
+=: owner_wc
+
+{{ royalty_address }} dup =: royalty_address $>smca 0= abort"bad address"
+=: royalty_flags
+=: royalty_addr
+=: royalty_wc
 
 // build path
 {{ build_path }} =: build_path  
@@ -44,8 +56,10 @@ build_path +"/nft-item-code.fif" include =: item_code
 
 // data
 <b
-   b{100} s,           // 10+0 - owner address prefix
-   owner_addr addr,    // owner address
+   b{100} s,           // 10+0 - owner address prefix   
+   owner_wc 8 i,       // owner address
+   owner_addr 256 u,
+
    0 64 u,             // next item index
    <b  // content
       <b  // collection content
@@ -61,7 +75,8 @@ build_path +"/nft-item-code.fif" include =: item_code
       royalty_factor 16 u,  // royalty factor
       royalty_base 16 u,    // royalty base
       b{100} s,             // 10+0 - royalty address prefix
-      royalty_addr addr,    // royalty address
+      royalty_wc 8 i,       // royalty address
+      royalty_addr 256 u,
    b> ref,
 b> =: collection_data
 

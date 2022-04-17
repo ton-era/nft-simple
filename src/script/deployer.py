@@ -3,28 +3,35 @@ import json
 import pprint
 import shutil
 import requests
+import base64
 from subprocess import check_output
 from jinja2 import Template
+
+from utils import addr_from_file
 
 
 class Deployer:
     def __init__(self, 
                  api_base_url, 
-                 api_token, 
-                 func_compiler_path, 
+                 api_token,
+                 fift_path,
                  fift_executer_path,
+                 func_compiler_path, 
                  out_path, 
                  secret_path, 
-                 wallet_addr,
+                 wallet_address,
                  log_path='../../logs'):
         self.api_base_url = api_base_url 
-        self.api_token = api_token 
-        self.func_compiler_path = func_compiler_path
+        self.api_token = api_token
+        self.fift_path = fift_path
         self.fift_executer_path = fift_executer_path
+        self.func_compiler_path = func_compiler_path
         self.out_path = out_path
         self.secret_path = secret_path
-        self.wallet_addr = wallet_addr
-        
+        self.wallet_address = wallet_address
+
+        os.environ['FIFTPATH'] = os.path.join(self.fift_path, 'lib')
+
         self.logger = None  # TODO
 
 
@@ -77,79 +84,131 @@ class Deployer:
         print('Build templates: DONE')
 
     
-    def generate_collection_deploy_boc(self,
-                                       collection_content_uri,
-                                       item_content_base_uri,
-                                       royalty_base,
-                                       royalty_factor,
-                                       coll_init_ng,
-                                       owner_addr,
-                                       royalty_addr,
-                                       run=True):
-        print(f'Generate collection deploy .boc file (run={run})...')
-        
+    def process_collection_deploy(
+            self,
+            script_name,
+            collection_content_uri,
+            item_content_base_uri,
+            royalty_base,
+            royalty_factor,
+            coll_init_ng,
+            owner_address,
+            royalty_address,
+            build=True,
+            run=True):
+        print(f'Process {script_name} .boc file (build={build}, run={run})...')
+
+        fif_file = None
+        boc_file = None
+
         # get current wallet seqno  
         seqno = self.get_seqno()
         print(f'  > actual seqno: {seqno}')
         if seqno is None:
             print('  > unable to get wallet seqno')
             print('BREAK')
-            return
+            return None
 
-        # fill template with params
-        params = {
-            'script_name': 'nft-collection-deploy',
-            'seqno': seqno,
-            'collection_content_uri': collection_content_uri,
-            'item_content_base_uri': item_content_base_uri,
-            'royalty_base': royalty_base,
-            'royalty_factor': royalty_factor,
-            'coll_init_ng': coll_init_ng,
-            'owner_addr': owner_addr,
-            'royalty_addr': royalty_addr,
-            'wallet_address': self.wallet_addr,
-            'secret_path': self.secret_path,
-            'build_path': self.out_path,
-        }
-        print(f'  > script params:\n{pprint.pformat(params)}')
-        
-        
+        if build:
+            # fill template with params
+            params = {
+                'script_name': script_name,
+                'seqno': seqno,
+                'collection_content_uri': base64.b64encode(collection_content_uri.encode('utf-8')).decode('utf-8'),
+                'item_content_base_uri': base64.b64encode(item_content_base_uri.encode('utf-8')).decode('utf-8'),
+                'royalty_base': royalty_base,
+                'royalty_factor': royalty_factor,
+                'coll_init_ng': coll_init_ng,
+                'owner_address': owner_address,
+                'royalty_address': royalty_address,
+                'wallet_address': self.wallet_address,
+                'secret_path': self.secret_path,
+                'build_path': self.out_path,
+            }
+            print(f'  > script params:\n{pprint.pformat(params)}')
+
+            print(f'  > fill template for "{script_name}"')
+            for p in params:
+                params[p] = f'"{params[p]}"'
+            with open(os.path.join(self.out_path, script_name + '.tif'), 'r') as f:
+                fif_template = f.read()
+
+            try:
+                fif_result = Template(fif_template).render(**params)
+            except Exception as err:
+                print('ERROR: ', err)
+                return None
+
+            fif_file = os.path.join(self.out_path, script_name + '.fif')
+            print(f'  > fif generated: {fif_file}')
+            with open(fif_file, 'w') as f:
+                f.writelines(fif_result)
+
+            # execute fif to get .boc
+            print('  > execute fift script...')
+            try:
+                result = check_output([self.fift_executer_path, '-s', fif_file])
+            except Exception as err:
+                print('ERROR: ', err)
+                return None
+
+        # get collection address
+        addr_file = os.path.join(self.out_path, script_name + '.addr')
+        coll_address = addr_from_file(addr_file)
+        if not coll_address:
+            print('  > no collection .addr file found. Run build first.')
+            return None
+        print(f'  > collection address: {coll_address}')
 
         if run:
-            pass
+            boc_file = os.path.join(self.out_path, script_name + '-query.boc')
+
+            print(f'  > sending .boc file {boc_file}...')
+            with open(boc_file, 'rb') as f:
+                boc_b64 = base64.b64encode(f.read()).decode('utf8')
+                self.send_boc(boc_b64)
 
         print(f'Generate .boc file: DONE')
 
-    def get_seqno(self):
-        url = f'{self.api_base_url}runGetMethod&api_key={self.api_token}'
-        data = {
-            'address': self.wallet_addr,
-            'method': 'seqno',
-            'stack': []
+        return {
+            'seqno': seqno,
+            'fif_file': fif_file,
+            'boc_file': boc_file,
+            'coll_address': coll_address,
         }
 
-        result = self._post(self.wallet_addr, 'seqno')
-        if not result:
+
+    def send_boc(self, boc_b64):
+        try:
+            data = {'boc': boc_b64}
+            result = self._post(api_method='sendBoc', data=data)
+            return result
+        except Exception as err:
+            print('ERROR: ', err)
             return None
 
-        seqno = int(result[0][1], 16)
-        return seqno
-            
 
-    def _post(self, smc_addr, smc_method, api_method='runGetMethod', stack=None):
+    def get_seqno(self):
+        try:
+            result = self._post(smc_addr=self.wallet_address, smc_method='seqno')
+            seqno = int(result[0][1], 16)
+            return seqno
+        except Exception as err:
+            print('ERROR: ', err)
+            return None
+
+
+    def _post(self, api_method='runGetMethod', data=None, smc_addr=None, smc_method=None, stack=None):
         url = f'{self.api_base_url}{api_method}?api_key={self.api_token}'
-        data = {
+        data = data or {
             'address': smc_addr,
             'method': smc_method,
             'stack': stack or []
         }
 
-        try:
-            response = requests.post(url, json=data)
-            response = json.loads(response.text)
-            if response.get('ok', None) and response.get('result', None):
-                result = response['result']
-                return result['stack']
-        except Exception as err:
-            print('ERROR: ', err)
-            return None
+        response = requests.post(url, json=data)
+        response = json.loads(response.text)
+        print(response)
+        if response.get('ok', None) and response.get('result', None):
+            result = response['result']
+            return result['stack']

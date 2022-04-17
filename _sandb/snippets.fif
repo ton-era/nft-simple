@@ -118,3 +118,11 @@ nft_flags .dump cr cr
 0 nft_addr 4 smca>$ .dump cr
 0 nft_addr 2 smca>$ .dump cr
 0 nft_addr 0 smca>$ .dump cr cr
+
+
+"nft-collection-deploy.addr" load-address-verbose 2=: nft_coll_addr
+cr ."Address:" cr nft_coll_addr 6 .Addr cr cr
+
+nft_coll_addr .dump .dump cr cr
+
+"kQBbZY6xmT2bnzGXYP-Snz-ZtsISa5VBDw3P58w3GW-i36aU" 1 parse-load-address .dump .dump .dump
