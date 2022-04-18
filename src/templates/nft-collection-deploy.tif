@@ -3,7 +3,7 @@
 // Params
 
 // wallet seqno
-{{ seqno }} parse-int =: seqno
+{{ seqno }} =: seqno
 
 // collection content URI (uri --> base64 (UTF-8-based) encode)
 {{ collection_content_uri }} =: collection_content_uri
@@ -12,11 +12,11 @@
 {{ item_content_base_uri }} =: item_content_base_uri  
 
 // royalty,% = 100*royalty_factor/royalty_base
-{{ royalty_base }} parse-int =: royalty_base            
-{{ royalty_factor }} parse-int =: royalty_factor
+{{ royalty_base }} =: royalty_base            
+{{ royalty_factor }} =: royalty_factor
 
 // in nanotons, dft 50000000
-{{ coll_init_ng }} parse-int =: coll_init_ng  
+{{ coll_init_ng }} =: coll_init_ng  
 
 // secret path
 {{ secret_path }} =: secret_path 

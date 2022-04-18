@@ -25,7 +25,7 @@ def calcCRC(message):
 
 def addr_from_file(file_name):
     if not os.path.exists(file_name):
-        return None
+        return { 'b': None, 'u': None }
 
     with open(file_name, 'rb') as f:
         bytes = f.read()
