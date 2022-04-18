@@ -1,9 +1,10 @@
+from inspect import stack
 import os
 import pprint
 import base64
 from subprocess import check_output
 
-from utils import addr_from_file
+from utils import addr_from_file, addr_from_b64
 
 
 class NftCollection:
@@ -97,13 +98,76 @@ class NftCollection:
 
         result = self.provider.run_get(address, 'get_collection_data')
         coll_data = {}
+
         if result and len(result) == 4:
             coll_data = {
                 'collection_address': address,
                 'next_item_index': int(result[0][1], 16),
-                'collection_data': result[1][1]['object']['data']['b64'],
-                'owner_address': result[2][1]['object']['data']['b64'],
+                'collection_data': base64.b64decode(result[1][1]['object']['data']['b64'])[1:].decode('utf-8'),
+                'owner_address': addr_from_b64(result[2][1]['object']['data']['b64'])['b'],
                 'main_answer': int(result[3][1], 16),
+            }
+
+        return coll_data
+
+
+    def royalty_params(self):
+        address = self.address or self.get_address().get('b', None)
+        if not address:
+            print('  > no collection address found. Run build first.')
+            return {'ok': False}
+
+        result = self.provider.run_get(address, 'royalty_params')
+        coll_data = {}
+
+        if result and len(result) == 3:
+            coll_data = {
+                'collection_address': address,
+                'royalty_factor': int(result[0][1], 16),
+                'royalty_base': int(result[1][1], 16),
+                'royalty_address': addr_from_b64(result[2][1]['object']['data']['b64'])['b'],
+            }
+
+        return coll_data
+
+
+    def get_nft_address_by_index(self, index):
+        address = self.address or self.get_address().get('b', None)
+        if not address:
+            print('  > no collection address found. Run build first.')
+            return {'ok': False}
+
+        result = self.provider.run_get(address, 'get_nft_address_by_index', stack=[['num', index]])
+        coll_data = {}
+
+        if result and len(result) == 1:
+            coll_data = {
+                'collection_address': address,
+                'nft_index': index,
+                'nft_address': addr_from_b64(result[0][1]['object']['data']['b64'])['b'],
+            }
+
+        return coll_data
+
+
+    def get_nft_content(self, index):
+        address = self.address or self.get_address().get('b', None)
+        if not address:
+            print('  > no collection address found. Run build first.')
+            return {'ok': False}
+
+        import json 
+
+        # TODO: tvm.Cell = nftData.contentCell.toBoc
+        result = self.provider.run_get(address, 'get_nft_content', stack=[['num', index], ['tvm.Cell', None]])
+        coll_data = {}
+
+        if result and len(result) == 1:
+            coll_data = {
+                'collection_address': address,
+                'nft_index': index,
+                'collection_data': base64.b64decode(result[1][1]['object']['data']['b64'])[1:].decode('utf-8'),
+                'nft_address': addr_from_b64(result[0][1]['object']['data']['b64'])['b'],
             }
 
         return coll_data

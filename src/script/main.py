@@ -36,8 +36,20 @@ def main():
     # if not result['ok']:
     #     return
 
-    result = collection.get_collection_data()
-    print('\n>>>>>>>>>>>>>>>>>>>>>>>> COLLECION DATA >>>>>>>>>>>>>>>>>>>>>>>>')
+    # result = collection.get_collection_data()
+    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> COLLECION DATA >>>>>>>>>>>>>>>>>>>>>>>>')
+    # pprint.pprint(result)
+
+    # result = collection.royalty_params()
+    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> ROYALTY DATA >>>>>>>>>>>>>>>>>>>>>>>>')
+    # pprint.pprint(result)
+
+    # result = collection.get_nft_address_by_index(123)
+    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> NFT ADDRESS >>>>>>>>>>>>>>>>>>>>>>>>')
+    # pprint.pprint(result)
+    
+    result = collection.get_nft_content(123)
+    print('\n>>>>>>>>>>>>>>>>>>>>>>>> NFT CONTENT >>>>>>>>>>>>>>>>>>>>>>>>')
     pprint.pprint(result)
 
 

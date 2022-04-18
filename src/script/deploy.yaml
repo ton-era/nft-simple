@@ -4,11 +4,11 @@ collection:
   royalty_base:   100
   royalty_factor: 5            # 5% royalty
   coll_init_ng:   50_000_000   # 0.05 TON
-  owner_address:   'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
-  royalty_address: 'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+  owner_address:   'EQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfH5jG'
+  royalty_address: 'EQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfH5jG'
 items:
   collection_address: null
-  owner_address: 'kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM'
+  owner_address: 'EQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfH5jG'
   coll_tomint_ng: 70_000_000   # 0.07 TON
   item_init_ng:   50_000_000   # 0.05 TON
   items:

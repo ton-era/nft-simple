@@ -1,5 +1,6 @@
 import os
 import base64
+from bitstring import BitArray
 
 
 BOUNCEABLE_TAG = b'\x11'
@@ -29,13 +30,33 @@ def addr_from_file(file_name):
 
     with open(file_name, 'rb') as f:
         bytes = f.read()
+
+    return addr_from_bytes(bytes)
+
+    
+def addr_from_b64(b64):
+    bytes = base64.b64decode(b64)
+    bits = BitArray(bytes)
+    flag_bits = bits[:3]
+    wc_bits = int.from_bytes(bits[3:11], byteorder='big', signed=True).to_bytes(4, "big")
+    addr_bits = bits[11:-5]
+    bytes = (addr_bits + wc_bits).bytes
+
+    return addr_from_bytes(bytes)
+
+
+def addr_from_bytes(bytes):
+    try:
+
         addr_bytes, wc_bytes = bytes[:32], bytes[32:]
         wc = int.from_bytes(wc_bytes, byteorder='big', signed=True)
         wc_bytes = b'\xff' if wc == -1 else wc.to_bytes(1, "big")
 
-    preaddr_b = BOUNCEABLE_TAG + wc_bytes + addr_bytes
-    preaddr_u = NONBOUNCEABLE_TAG + wc_bytes + addr_bytes
-    b64_b = base64.urlsafe_b64encode(preaddr_b + calcCRC(preaddr_b)).decode('utf8')
-    b64_u = base64.urlsafe_b64encode(preaddr_u + calcCRC(preaddr_u)).decode('utf8')
+        preaddr_b = BOUNCEABLE_TAG + wc_bytes + addr_bytes
+        preaddr_u = NONBOUNCEABLE_TAG + wc_bytes + addr_bytes
+        b64_b = base64.urlsafe_b64encode(preaddr_b + calcCRC(preaddr_b)).decode('utf8')
+        b64_u = base64.urlsafe_b64encode(preaddr_u + calcCRC(preaddr_u)).decode('utf8')
 
-    return { 'b': b64_b, 'u': b64_u }
+        return { 'b': b64_b, 'u': b64_u }
+    except Exception as err:
+        return { 'b': None, 'u': None }

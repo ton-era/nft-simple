@@ -20,6 +20,7 @@ class HttpApiProvider:
     
     def run_get(self, smc_addr, smc_method, stack=None):
         success, result = self._post('runGetMethod', smc_addr=smc_addr, smc_method=smc_method, stack=stack)
+        print(success, result)
         return result.get('stack', None) if success else None
 
 
@@ -35,9 +36,11 @@ class HttpApiProvider:
             response = requests.post(url, json=data)
             response = json.loads(response.text)
 
+            print(response)
+
             if response.get('ok', None) and response.get('result', None):
                 result = response['result']
-                success = (result.get('@type', None) == 'ok') or (result['exit_code'] <= 0)
+                success = (result.get('@type', 'ok') == 'ok') and (result.get('exit_code', 0) <= 0)
                 return (success, result)
 
             return (False, None)
