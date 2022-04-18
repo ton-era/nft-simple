@@ -21,8 +21,7 @@ def main():
     # core.compile_sources(**config['compile'])
     # core.build_templates(**config['compile'])
 
-    # seqno = provider.get_seqno(core.wallet_address)
-    # result = collection.build(seqno)
+    # result = collection.build()
     # print('\n>>>>>>>>>>>>>>>>>>>>>>>> BUILD >>>>>>>>>>>>>>>>>>>>>>>>\n')
     # pprint.pprint(result)
 
