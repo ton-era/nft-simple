@@ -18,13 +18,14 @@ class HttpApiProvider:
 
 
     def await_seqno(self, wallet_address):
-        # TODO: refactor & lock!!!
+        # TODO: lock!!!
         prev_seqno = self.current_seqnos.get(wallet_address, None)
         iter = 0
 
         while True:
             iter += 1
             curr_seqno = self.get_seqno(wallet_address)
+            print('   >>>', iter, prev_seqno, curr_seqno)
             if (prev_seqno is None) or \
                 (prev_seqno < curr_seqno) or \
                 (iter > self.wait_max_iters):
@@ -32,12 +33,12 @@ class HttpApiProvider:
 
             time.sleep(self.wait_sec)
         
-        self.current_seqnos[wallet_address] = curr_seqno
-
 
     def get_seqno(self, wallet_address):
         result = self.run_get(wallet_address, 'seqno')
-        return int(result[0][1], 16)
+        seqno = int(result[0][1], 16)
+        self.current_seqnos[wallet_address] = seqno
+        return seqno
 
 
     def run_get(self, smc_addr, smc_method, stack=None):

@@ -11,14 +11,12 @@ class NftCollection(NftBase):
                  provider,
                  config,
                  address=None,
-                 script_name='nft-collection-deploy',
                  logger=None,
                  log_path='../../logs'):
         super().__init__(core=core, 
                          provider=provider, 
                          config=config, 
-                         address=address, 
-                         script_name=script_name,
+                         address=address,
                          logger=logger,
                          log_path=log_path)
 
@@ -27,15 +25,20 @@ class NftCollection(NftBase):
         if self.address is not None:
             return self.address
 
-        addr_file = os.path.join(self.core.out_path, self.script_name + '.addr')
+        addr_file = os.path.join(self.core.out_path, 'nft-collection-deploy.addr')
         self.address = addr_from_file(addr_file)
-        self._check_success(self.address['b'] is not None, 'Can\'t get collection address')
+        if self.address['b'] is None:
+            raise Exception('Can\'t find contract address')
 
         return self.address
 
 
-    def get_params(self):
-        return {
+    # Smart Contract deploy to Blockchain
+
+    def deploy(self, script_name='nft-collection-deploy', send=True):
+        print(f'Deploy NFT Collection (send={send})')
+        
+        params = {
             'collection_content_uri': base64.b64encode(self.config['collection_content_uri'].encode('utf-8')).decode('utf-8'),
             'item_content_base_uri': base64.b64encode(self.config['item_content_base_uri'].encode('utf-8')).decode('utf-8'),
             'royalty_base': self.config['royalty_base'],
@@ -45,15 +48,20 @@ class NftCollection(NftBase):
             'royalty_address': self.config['royalty_address'],
         }
 
+        self.api(params, script_name, send)
+
+        print(f' > contract address: {self.get_address()}')
+        print(f'Deploy NFT Collection (send={send}): DONE')
+
+
     # Smart Contract API
 
-    def deploy_one_nft(self, nft):
-        pass
+    # TODO
 
     # Smart Contract GET methods
     
     def get_collection_data(self):
-        result = self.provider.run_get(self.get_address(), 'get_collection_data')
+        result = self.provider.run_get(self.get_address()['b'], 'get_collection_data')
 
         if result and len(result) == 4:
             return {

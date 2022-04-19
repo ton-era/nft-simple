@@ -1,5 +1,7 @@
 import os
 import shutil
+import pprint
+import base64
 from subprocess import check_output
 from jinja2 import Template
 
@@ -34,78 +36,92 @@ class Core:
 
     def compile_sources(self, src_path, src_files, **kwargs):
         print(f'Compile *.fc sources from {src_path} ...')
-        success = True
 
         for file_group in src_files:
-            try:
-                in_files = [os.path.join(src_path, file) for file in file_group]
-                out_file = os.path.join(self.out_path, file_group[-1].split('.')[0] + '-code.fif')
+            in_files = [os.path.join(src_path, file) for file in file_group]
+            out_file = os.path.join(self.out_path, file_group[-1].split('.')[0] + '-code.fif')
 
-                print(f'  > compile {out_file}')
-                result = check_output([self.func_compiler_path, '-o', out_file, '-SPA', *in_files])
-            except Exception as err:
-                print('ERROR:', err)
-                success = False
-                break
+            print(f'  > compile {out_file}')
+            check_output([self.func_compiler_path, '-o', out_file, '-SPA', *in_files])
 
-        print(f'Compile sources: {success}')
-        return True
+        print('Compile sources: DONE')
+
+
+    def create_boc(self, script_name, params, seqno):
+        print(f'Build {script_name} script...')
+
+        tpl_file = os.path.join(self.out_path, script_name + '.tif')
+        fif_file = os.path.join(self.out_path, script_name + '.fif')
+        boc_file = os.path.join(self.out_path, script_name + '-query.boc')
+
+        # fill template with params
+        params['seqno'] = seqno
+        params['script_name'] = script_name
+        params['secret_path'] = self.secret_path
+        params['wallet_address'] = self.wallet_address
+        params['build_path'] = self.out_path
+
+        print(f'  > script params:\n{pprint.pformat(params)}')
+        print(f'  > fill template for "{script_name}"')
+
+        # pass params to tif template
+        self.render_template(tpl_file, 
+                             params=params,
+                             out_file=fif_file,
+                             decorate_str=True)
+
+        # execute fif to get .boc
+        self.execute_fif(fif_file)
+        print(f'  > boc generated: {boc_file}')
+
+        with open(boc_file, 'rb') as f:
+            boc_b64 = base64.b64encode(f.read()).decode('utf8')
+
+        print('Build: DONE')
+
+        return boc_b64
+
 
     def build_templates(self, tif_path, tif_files, **kwargs):
         print(f'Build *.tif templates from {tif_path} ...')
-        success = True
 
         for target_file, base_file in tif_files:
-            template_file = os.path.join(tif_path, target_file)
+            tpl_file = os.path.join(tif_path, target_file)
             out_file = os.path.join(self.out_path, target_file.split('.')[0] + '.tif')
 
-            with open(template_file, 'r') as f:
+            with open(tpl_file, 'r') as f:
                 target_template = f.read()
-                success |= self.render_template(os.path.join(tif_path, base_file),
-                                                params={'contract_body': target_template},
-                                                out_file=out_file)
-                if not success:
-                    break
+                self.render_template(os.path.join(tif_path, base_file),
+                                     params={'contract_body': target_template},
+                                     out_file=out_file)
 
-        print(f'Build templates: {success}')
+        print('Build templates: DONE')
 
-    def render_template(self, template_file, params, out_file, decorate_str=False):
+
+    def render_template(self, tpl_file, params, out_file, decorate_str=False):
         print(f'  > building {out_file} template...')
-        success = False
 
-        try:
-            if decorate_str:
-                for p in params:
-                    param = params[p]
-                    if isinstance(param, str):
-                        params[p] = f'"{param}"'
+        if decorate_str:
+            for p in params:
+                param = params[p]
+                if isinstance(param, str):
+                    params[p] = f'"{param}"'
 
-            with open(template_file, 'r') as f:
-                template = f.read()
-                result = Template(template).render(**params)
+        with open(tpl_file, 'r') as f:
+            template = f.read()
+            result = Template(template).render(**params)
 
-            with open(out_file, 'w') as f:
-                f.writelines(result)
+        with open(out_file, 'w') as f:
+            f.writelines(result)
 
-            success = True
-        except Exception as err:
-            print('ERROR:', err)
-
-        print(f'  > building {out_file} template: {success}')
-        return success
+        print(f'  > building {out_file} template: DONE')
 
 
     def execute_fif(self, fif_file, verbose=False):
         print('  > execute fift script...')
-        success = False
-        
-        try:
-            result = check_output([self.fift_executer_path, '-s', fif_file])
-            if verbose:
-                print(result)
-            success = True 
-        except Exception as err:
-            print('ERROR: ', err)
+    
+        result = check_output([self.fift_executer_path, '-s', fif_file])
+        if verbose:
+            print(result)
 
-        print(f'  > execute fift script: {success}')
-        return success
+        print('  > execute fift script: DONE')

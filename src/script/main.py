@@ -19,18 +19,14 @@ def main():
     core.compile_sources(**config['compile'])
     core.build_templates(**config['compile'])
 
+
     with open('deploy.yaml') as f:
         deploy = yaml.safe_load(f)
     
     collection = NftCollection(core, provider, config=deploy['collection'])
 
-
-    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> BUILD >>>>>>>>>>>>>>>>>>>>>>>>\n')
-    # collection.build()
-
-
-    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> DEPLOY >>>>>>>>>>>>>>>>>>>>>>>>')
-    # collection.deploy()
+    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> BUILD & DEPLOY >>>>>>>>>>>>>>>>>>>>>>>>\n')
+    # collection.deploy(send=True)
 
 
     # time.sleep(10)  # wait some time for smc to be deployed in bc
@@ -50,9 +46,10 @@ def main():
     # pprint.pprint(result)
     
 
-    # # print('\n>>>>>>>>>>>>>>>>>>>>>>>> GET: NFT CONTENT >>>>>>>>>>>>>>>>>>>>>>>>')
-    # # result = collection.get_nft_content(123)
-    # # pprint.pprint(result)
+    ## print('\n>>>>>>>>>>>>>>>>>>>>>>>> GET: NFT CONTENT >>>>>>>>>>>>>>>>>>>>>>>>')
+    ##                       .... not yet due to official bug ....
+    ## result = collection.get_nft_content(123)
+    ## pprint.pprint(result)
 
 
     print('\n>>>>>>>>>>>>>>>>>>>>>>>> DEPLOY NFT >>>>>>>>>>>>>>>>>>>>>>>>')
@@ -67,19 +64,24 @@ def main():
         nft = NftItem(core, provider, nft_config, collection)
         print(nft.get_address())
 
-        nft.build()
-        # nft.deploy()
-        # print(f'awaiting wallet seqno update: {provider.get_seqno(core.wallet_address)}...')
-        # provider.await_seqno(core.wallet_address)
-        # print(f'awaiting wallet seqno update: {provider.get_seqno(core.wallet_address)}: DONE')
+        nft.deploy(send=True)
+
+        # time.sleep(15)
+        provider.await_seqno(core.wallet_address)
 
         nfts.append(nft)
         
 
-    print('\n>>>>>>>>>>>>>>>>>>>>>>>> GET: NFT DATA >>>>>>>>>>>>>>>>>>>>>>>>')
-    nft = nfts[2]
-    result = nft.get_nft_data()
-    pprint.pprint(result)
+    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> GET: NFT DATA >>>>>>>>>>>>>>>>>>>>>>>>')
+    # nft = nfts[2]
+    # result = nft.get_nft_data()
+    # pprint.pprint(result)
+
+
+    # print('\n>>>>>>>>>>>>>>>>>>>>>>>> API: NFT TRANSFER OWNERSHIP >>>>>>>>>>>>>>>>>>>>>>>>')
+
+
+
 
 
 

@@ -11,14 +11,12 @@ class NftItem(NftBase):
                  config,
                  collection,
                  address=None,
-                 script_name='nft-item-mint',
                  logger=None,
                  log_path='../../logs'):
         super().__init__(core=core, 
                          provider=provider, 
                          config=config, 
                          address=address, 
-                         script_name=script_name,
                          logger=logger,
                          log_path=log_path)
 
@@ -31,13 +29,16 @@ class NftItem(NftBase):
 
         index = self.config['item_index']
         self.address = self.collection.get_nft_address_by_index(index).get('nft_address', None)
-        self._check_success(self.address.get('b', None) is not None, 'Can\'t get collection address')
 
         return self.address
 
 
-    def get_params(self):
-        return {
+    # Smart Contract deploy to Blockchain
+
+    def deploy(self, script_name='nft-item-mint', send=True):
+        print(f'Deploy NFT Item (send={send})')
+
+        params = {
             'item_index': self.config['item_index'],
             'item_content_uri': base64.b64encode(self.config['item_content_uri'].encode('utf-8')).decode('utf-8'),
             'coll_ng': self.config['coll_ng'],
@@ -45,6 +46,28 @@ class NftItem(NftBase):
             'owner_address': self.config['owner_address'],
             'coll_address': self.collection.get_address()['b'],
         }
+
+        self.api(params, script_name, send)
+
+        print(f' > contract address: {self.get_address()}')
+        print(f'Deploy NFT Item (send={send}): DONE')
+
+
+    # Smart contract API
+
+    def transfer_ownership(self, new_owner_address, item_ng=10_000_000, script_name='nft-item-transfer', send=True):
+        print(f'API: NFT Item transfer ownership (send={send})')
+
+        params = {
+            'new_owner_address': new_owner_address,
+            'item_ng': item_ng,
+            'item_address': self.get_address()['b'],
+        }
+
+        self.api(params, script_name, send)
+
+        print(f'API: NFT Item transfer ownership (send={send}): DONE')
+
 
     # Smart Contract GET methods
 

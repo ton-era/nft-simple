@@ -4,7 +4,7 @@ providers:
     api_base_url: 'https://testnet.toncenter.com/api/v2/'
     api_key: '76577d29bdc879791f7470c117c3aac144d0b41583dd81fbe4e831740313bce5'
     wait_sec: 1
-    wait_max_iters: 10
+    wait_max_iters: 20
 core:
   fift_path: '/opt/ton/crypto/fift'
   fift_executer_path: '/opt/liteclient-build/crypto/fift'
@@ -23,3 +23,4 @@ compile:
   tif_files:
     - ['nft-collection-deploy.tif', 'wallet-external-base.tif']
     - ['nft-item-mint.tif', 'wallet-external-base.tif']
+    - ['nft-item-transfer.tif', 'wallet-external-base.tif']
