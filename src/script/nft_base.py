@@ -66,7 +66,7 @@ class NftBase:
         print(f'  > smart contract address: {self.address}')
 
         # copy unique smc fift file
-        unique_file = self.fif_unique_file.format(unique=self.address)
+        unique_file = self.fif_unique_file.format(addr=self.address['b'])
         shutil.copyfile(self.fif_file, unique_file)
         print(f'  > unique fift file: {unique_file}')
 

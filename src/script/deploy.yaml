@@ -1,5 +1,5 @@
 collection:
-  collection_content_uri: 'https://ipfs.io/ipfs/Qmef2H389nd9vWb9r5Wnx5Mg6YgCNNV862sM6KeYdJHM64?filename=collection5.json'
+  collection_content_uri: 'https://ipfs.io/ipfs/Qmef2H389nd9vWb9r5Wnx5Mg6YgCNNV862sM6KeYdJHM64?filename=collection6.json'
   item_content_base_uri:  'https://ipfs.io/ipfs/'
   royalty_base:   100
   royalty_factor: 5            # 5% royalty
@@ -7,14 +7,13 @@ collection:
   owner_address:   'EQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfH5jG'
   royalty_address: 'EQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfH5jG'
 items:
-  collection_address: null
   owner_address: 'EQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfH5jG'
-  coll_tomint_ng: 70_000_000   # 0.07 TON
-  item_init_ng:   50_000_000   # 0.05 TON
-  items:
-    - index: 0
-      item_content_uri: 'QmWBXB7PghQpG1sD2mQjiKBDjhTmTG7CBuEdXWnW7TPeRW?filename=harold.jpg'
-    - index: 1
-      item_content_uri: 'QmfKawqCp7zxa5uckmmU7kshCLDduiciCp4N6WCeZcd9Pw?filename=math.jpeg'
-    - index: 2
-      item_content_uri: 'QmP7YPwQK1RfrQwxMawY8Ez4HdTDznKoJY1hhvvNg7bEfe?filename=googe_dino.png'
+  coll_ng: 70_000_000   # 0.07 TON
+  item_ng: 50_000_000   # 0.05 TON
+  list:
+    - item_index: 0
+      item_content_uri: 'QmWBXB7PghQpG1sD2mQjiKBDjhTmTG7CBuEdXWnW7TPeRW?filename=harold1.jpg'
+    - item_index: 1
+      item_content_uri: 'QmfKawqCp7zxa5uckmmU7kshCLDduiciCp4N6WCeZcd9Pw?filename=math1.jpeg'
+    - item_index: 2
+      item_content_uri: 'QmP7YPwQK1RfrQwxMawY8Ez4HdTDznKoJY1hhvvNg7bEfe?filename=googe_dino1.png'

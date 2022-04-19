@@ -14,7 +14,13 @@ class NftCollection(NftBase):
                  script_name='nft-collection-deploy',
                  logger=None,
                  log_path='../../logs'):
-        super().__init__(core, provider, config, address, script_name, logger, log_path)
+        super().__init__(core=core, 
+                         provider=provider, 
+                         config=config, 
+                         address=address, 
+                         script_name=script_name,
+                         logger=logger,
+                         log_path=log_path)
 
 
     def get_address(self):
@@ -47,59 +53,56 @@ class NftCollection(NftBase):
     # Smart Contract GET methods
     
     def get_collection_data(self):
-        address = self.address or self.get_address().get('b', None)
-        result = self.provider.run_get(address, 'get_collection_data')
-        coll_data = {}
+        result = self.provider.run_get(self.get_address(), 'get_collection_data')
 
         if result and len(result) == 4:
-            coll_data = {
+            return {
                 'next_item_index': int(result[0][1], 16),
                 'collection_data': base64.b64decode(result[1][1]['object']['data']['b64'])[1:].decode('utf-8'),
                 'owner_address': addr_from_b64(result[2][1]['object']['data']['b64']),
                 'main_answer': int(result[3][1], 16),
             }
 
-        return coll_data
+        return None
 
 
     def royalty_params(self):
-        address = self.address or self.get_address().get('b', None)
-        result = self.provider.run_get(address, 'royalty_params')
-        coll_data = {}
+        result = self.provider.run_get(self.get_address()['b'], 'royalty_params')
 
         if result and len(result) == 3:
-            coll_data = {
+            return {
                 'royalty_factor': int(result[0][1], 16),
                 'royalty_base': int(result[1][1], 16),
                 'royalty_address': addr_from_b64(result[2][1]['object']['data']['b64']),
             }
 
-        return coll_data
+        return None
 
 
     def get_nft_address_by_index(self, index):
-        address = self.address or self.get_address().get('b', None)
-        result = self.provider.run_get(address, 'get_nft_address_by_index', stack=[['num', index]])
-        coll_data = {}
+        result = self.provider.run_get(self.get_address()['b'], 
+                                       'get_nft_address_by_index',
+                                       stack=[['num', index]])
 
         if result and len(result) == 1:
-            coll_data = {
+            return {
                 'nft_address': addr_from_b64(result[0][1]['object']['data']['b64']),
             }
 
-        return coll_data
+        return None
 
 
     def get_nft_content(self, index):
-        address = self.address or self.get_address().get('b', None)
         # TODO: tvm.Cell = nftData.contentCell.toBoc
-        result = self.provider.run_get(address, 'get_nft_content', stack=[['num', index], ['tvm.Cell', None]])
-        coll_data = {}
+        # A BUG, not ready yet: https://t.me/tondev/66903
+        result = self.provider.run_get(self.get_address()['b'],
+                                       'get_nft_content',
+                                       stack=[['num', index], ['tvm.Cell', None]])
 
         if result and len(result) == 1:
-            coll_data = {
+            return {
                 'collection_data': base64.b64decode(result[1][1]['object']['data']['b64'])[1:].decode('utf-8'),
                 'nft_address': addr_from_b64(result[0][1]['object']['data']['b64']),
             }
 
-        return coll_data
+        return None
