@@ -64,10 +64,9 @@ def main():
         nft = NftItem(core, provider, nft_config, collection)
         print(nft.get_address())
 
-        nft.deploy(send=True)
+        nft.deploy(send=False)
 
-        # time.sleep(15)
-        provider.await_seqno(core.wallet_address)
+        # provider.await_seqno(core.wallet_address)
 
         nfts.append(nft)
         
@@ -79,7 +78,9 @@ def main():
 
 
     # print('\n>>>>>>>>>>>>>>>>>>>>>>>> API: NFT TRANSFER OWNERSHIP >>>>>>>>>>>>>>>>>>>>>>>>')
-
+    # nft.transfer_ownership(new_owner_address='EQBzhPmdOPlLZY-GbJeQWJykLvWQCgcV57ywRlSeOcMtANOy', item_ng=55_000_000)
+    result = nft.get_nft_data()
+    pprint.pprint(result)
 
 
 

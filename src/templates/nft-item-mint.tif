@@ -73,22 +73,22 @@ b> =: item_mint_body
 // --------------------- Internal message from Wallet to Contract ---------------------
 
 <b
-  // int_msg_info, ihr_disabled, bounce, bounced, src_address (to be filled by server)
-  b{010000} s, 
+   // int_msg_info, ihr_disabled, bounce, bounced, src_address (to be filled by server)
+   b{010000} s, 
 
-  // coll_address: prefix, wc, address
-  b{100} s,
-  coll_wc 8 i,
-  coll_addr 256 u,
+   // coll_address: prefix, wc, address
+   b{100} s,
+   coll_wc 8 i,
+   coll_addr 256 u,
 
-  // coints to be passed to colection + type
-  coll_ng Gram,
-  b{0} s,
+   // coints to be passed to colection + type
+   coll_ng Gram,
+   b{0} s,
 
-  // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104 (to be filled by server)
-  0 104 u,
+   // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104 (to be filled by server)
+   0 104 u,
 
-  // no state init, body as ref
-  b{01} s,
-  item_mint_body ref,
+   // no state init, body as ref
+   b{01} s,
+   item_mint_body ref,
 b> =: request_body
